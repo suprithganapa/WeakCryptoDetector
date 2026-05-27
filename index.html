@@ -16,6 +16,7 @@
   body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:100vh;overflow-x:hidden;}
   body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,217,166,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,217,166,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
   .wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:2rem 1.5rem;}
+
   header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:2rem;gap:1rem;flex-wrap:wrap;}
   .logo-group{display:flex;align-items:center;gap:1rem;}
   .shield{width:52px;height:52px;background:linear-gradient(135deg,#00d9a633,#0090ff22);border:1px solid var(--accent);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
@@ -24,7 +25,42 @@
   .subtitle{font-size:.7rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:4px;}
   .badge{background:#00d9a611;border:1px solid #00d9a633;color:var(--accent);font-size:.65rem;padding:4px 10px;border-radius:20px;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;align-self:flex-start;}
 
-  /* RUN button big */
+  /* TARGET SELECTOR */
+  .target-section{margin-bottom:1.5rem;}
+  .target-label{font-size:.65rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:.75rem;display:block;}
+
+  .target-tabs{display:flex;gap:1px;background:var(--border);border-radius:10px;overflow:hidden;margin-bottom:1rem;width:fit-content;}
+  .tab{padding:.5rem 1.2rem;font-family:var(--mono);font-size:.7rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border:none;background:var(--bg3);color:var(--muted);transition:all .15s;}
+  .tab.active{background:var(--accent);color:#000;}
+  .tab:hover:not(.active){color:var(--text);}
+
+  .target-default{display:flex;align-items:center;gap:10px;padding:.85rem 1.25rem;background:var(--bg2);border:1px solid var(--accent);border-radius:10px;}
+  .target-default .t-icon{font-size:1.2rem;}
+  .target-default .t-name{font-size:.85rem;font-weight:700;color:var(--accent);}
+  .target-default .t-desc{font-size:.65rem;color:var(--muted);margin-top:2px;}
+
+  /* EXE DROP ZONE */
+  .exe-drop{border:1px dashed var(--border);border-radius:10px;padding:2rem;text-align:center;cursor:pointer;transition:all .2s;position:relative;background:var(--bg2);}
+  .exe-drop:hover,.exe-drop.drag-over{border-color:var(--accent);background:#00d9a608;}
+  .exe-drop input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+  .drop-icon{font-size:2.5rem;margin-bottom:.75rem;display:block;}
+  .drop-main{font-size:.85rem;color:var(--text);margin-bottom:4px;}
+  .drop-main span{color:var(--accent);}
+  .drop-sub{font-size:.7rem;color:var(--muted);}
+
+  .exe-chosen{display:none;align-items:center;gap:12px;padding:.85rem 1.25rem;background:var(--bg2);border:1px solid var(--accent2);border-radius:10px;margin-top:.75rem;}
+  .exe-chosen.show{display:flex;}
+  .exe-chosen .ec-icon{font-size:1.5rem;}
+  .exe-chosen .ec-name{font-size:.85rem;font-weight:700;color:var(--accent2);}
+  .ec-size{font-size:.65rem;color:var(--muted);margin-top:2px;}
+  .ec-clear{margin-left:auto;background:transparent;border:1px solid #ff4d4d44;color:var(--danger);font-family:var(--mono);font-size:.65rem;padding:4px 10px;border-radius:6px;cursor:pointer;}
+  .ec-clear:hover{background:#ff4d4d11;}
+
+  /* warning box */
+  .warn-box{display:none;background:#ffb02011;border:1px solid #ffb02033;border-radius:8px;padding:.75rem 1rem;font-size:.7rem;color:var(--warn);margin-top:.75rem;line-height:1.6;}
+  .warn-box.show{display:block;}
+
+  /* RUN BAR */
   .run-bar{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;}
   .btn-run{display:flex;align-items:center;gap:10px;padding:.85rem 2rem;border-radius:10px;font-family:var(--mono);font-size:.85rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;border:none;background:var(--accent);color:#000;transition:all .15s;}
   .btn-run:hover{background:#00f0b8;transform:translateY(-1px);}
@@ -42,7 +78,6 @@
   .btn-danger{background:transparent;border-color:#ff4d4d44;color:var(--danger);}
   .btn-danger:hover{background:#ff4d4d11;border-color:var(--danger);}
 
-  /* status pill */
   .status-pill{display:inline-flex;align-items:center;gap:6px;font-size:.7rem;padding:6px 12px;border-radius:20px;border:1px solid var(--border);color:var(--muted);}
   .status-pill.running{border-color:#0090ff44;color:var(--accent2);}
   .status-pill.done{border-color:#00d9a644;color:var(--accent);}
@@ -51,14 +86,22 @@
   .s-dot.pulse{animation:pulse 1s infinite;}
   @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.8);}}
 
-  /* stats */
+  /* currently analyzing banner */
+  .analyzing-banner{display:none;background:#0090ff11;border:1px solid #0090ff33;border-radius:8px;padding:.65rem 1rem;font-size:.72rem;color:var(--accent2);margin-bottom:1rem;align-items:center;gap:8px;}
+  .analyzing-banner.show{display:flex;}
+  .ab-dot{width:8px;height:8px;border-radius:50%;background:var(--accent2);animation:pulse 1s infinite;flex-shrink:0;}
+
+  /* STATS */
   .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.5rem;}
   .stat{background:var(--bg2);padding:1rem 1.25rem;}
   .stat-label{font-size:.6rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;display:block;margin-bottom:4px;}
   .stat-value{font-family:var(--sans);font-size:1.8rem;font-weight:800;line-height:1;display:block;}
-  .stat-value.danger{color:var(--danger);} .stat-value.warn{color:var(--warn);} .stat-value.ok{color:var(--accent);} .stat-value.blue{color:var(--accent2);}
+  .stat-value.danger{color:var(--danger);}
+  .stat-value.warn{color:var(--warn);}
+  .stat-value.ok{color:var(--accent);}
+  .stat-value.blue{color:var(--accent2);}
 
-  /* main grid */
+  /* GRID */
   .grid{display:grid;grid-template-columns:1fr 320px;gap:1.5rem;margin-bottom:1.5rem;}
   @media(max-width:800px){.grid{grid-template-columns:1fr;}}
   .panel{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
@@ -66,9 +109,9 @@
   .panel-title{font-size:.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px;}
   .live-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite;}
 
-  /* feed */
   .feed{padding:0;max-height:400px;overflow-y:auto;}
-  .feed::-webkit-scrollbar{width:4px;} .feed::-webkit-scrollbar-thumb{background:var(--border);}
+  .feed::-webkit-scrollbar{width:4px;}
+  .feed::-webkit-scrollbar-thumb{background:var(--border);}
   .entry{padding:.8rem 1.25rem;border-bottom:1px solid var(--border);display:grid;grid-template-columns:auto 1fr auto;gap:.75rem;align-items:start;animation:slideIn .3s ease forwards;opacity:0;}
   @keyframes slideIn{from{opacity:0;transform:translateX(-8px);}to{opacity:1;transform:translateX(0);}}
   .entry:last-child{border-bottom:none;}
@@ -82,9 +125,7 @@
   .pill.broken{background:#ff4d4d18;color:var(--danger);border:1px solid #ff4d4d33;}
   .pill.weak{background:#ffb02018;color:var(--warn);border:1px solid #ffb02033;}
   .pill.strong{background:#00d9a618;color:var(--accent);border:1px solid #00d9a633;}
-  .pill.info{background:#0090ff18;color:var(--accent2);border:1px solid #0090ff33;}
 
-  /* chart */
   .chart-panel{padding:1.25rem;}
   .chart-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;animation:fadeIn .4s ease forwards;opacity:0;}
   @keyframes fadeIn{to{opacity:1;}}
@@ -95,23 +136,26 @@
   .bar.weak{background:var(--warn);}
   .chart-count{width:24px;text-align:right;font-size:.75rem;font-weight:700;flex-shrink:0;}
 
-  /* terminal */
   .terminal{background:var(--bg);border:1px solid var(--border);border-radius:12px;margin-bottom:1.5rem;overflow:hidden;}
   .term-bar{background:var(--bg3);border-bottom:1px solid var(--border);padding:.6rem 1rem;display:flex;align-items:center;gap:8px;}
   .term-dot{width:10px;height:10px;border-radius:50%;}
-  .term-dot:nth-child(1){background:#ff5f57;} .term-dot:nth-child(2){background:#febc2e;} .term-dot:nth-child(3){background:#28c840;}
+  .term-dot:nth-child(1){background:#ff5f57;}
+  .term-dot:nth-child(2){background:#febc2e;}
+  .term-dot:nth-child(3){background:#28c840;}
   .term-title{font-size:.65rem;color:var(--muted);margin-left:6px;letter-spacing:1px;}
   .term-body{padding:1rem 1.25rem;font-size:.73rem;line-height:1.8;height:220px;overflow-y:auto;color:#a0aec0;}
-  .term-body::-webkit-scrollbar{width:4px;} .term-body::-webkit-scrollbar-thumb{background:var(--border);}
-  .t-green{color:var(--accent);} .t-red{color:var(--danger);} .t-yellow{color:var(--warn);}
-  .t-blue{color:var(--accent2);} .t-muted{color:var(--muted);}
+  .term-body::-webkit-scrollbar{width:4px;}
+  .term-body::-webkit-scrollbar-thumb{background:var(--border);}
+  .t-green{color:var(--accent);}
+  .t-red{color:var(--danger);}
+  .t-yellow{color:var(--warn);}
+  .t-blue{color:var(--accent2);}
+  .t-muted{color:var(--muted);}
 
-  /* legend */
   .legend{display:flex;gap:1.5rem;flex-wrap:wrap;padding:.75rem 1.25rem;border-top:1px solid var(--border);background:var(--bg3);}
   .leg-item{display:flex;align-items:center;gap:6px;font-size:.65rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
   .leg-dot{width:8px;height:8px;border-radius:50%;}
 
-  /* report box */
   .report-box{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--accent);font-family:var(--mono);font-size:.7rem;padding:1rem;resize:vertical;min-height:140px;outline:none;line-height:1.7;}
 
   footer{text-align:center;padding:1.5rem 0 .5rem;font-size:.65rem;color:var(--muted);letter-spacing:1px;border-top:1px solid var(--border);margin-top:2rem;}
@@ -131,6 +175,57 @@
     <div class="badge">Windows Debug API · DBI</div>
   </header>
 
+  <!-- TARGET SELECTOR -->
+  <div class="target-section">
+    <span class="target-label">Select Target Application</span>
+
+    <div class="target-tabs">
+      <button class="tab active" id="tab-default" onclick="switchTab('default')">Demo Target</button>
+      <button class="tab" id="tab-custom" onclick="switchTab('custom')">Custom .exe</button>
+    </div>
+
+    <!-- default target -->
+    <div id="panel-default">
+      <div class="target-default">
+        <div class="t-icon">🧪</div>
+        <div>
+          <div class="t-name">test_target.exe</div>
+          <div class="t-desc">Built-in demo app — intentionally uses MD5, SHA-1, DES, RC4</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- custom exe drop -->
+    <div id="panel-custom" style="display:none;">
+      <div class="exe-drop" id="exeDrop">
+        <input type="file" accept=".exe" id="exeInput">
+        <span class="drop-icon">📦</span>
+        <div class="drop-main">Drop any <span>.exe file</span> here</div>
+        <div class="drop-sub">or click to browse — any Windows application</div>
+      </div>
+
+      <div class="exe-chosen" id="exeChosen">
+        <span class="ec-icon">⚙️</span>
+        <div>
+          <div class="ec-name" id="ec-name">—</div>
+          <div class="ec-size" id="ec-size">—</div>
+        </div>
+        <button class="ec-clear" onclick="clearExe()">✕ Remove</button>
+      </div>
+
+      <div class="warn-box show">
+        ⚠️ Only run .exe files you trust. The detector launches the program on your machine.
+        Do not drop malware or unknown executables.
+      </div>
+    </div>
+  </div>
+
+  <!-- ANALYZING BANNER -->
+  <div class="analyzing-banner" id="analyzingBanner">
+    <div class="ab-dot"></div>
+    <span>Analyzing: <strong id="bannerTarget">—</strong></span>
+  </div>
+
   <!-- RUN BAR -->
   <div class="run-bar">
     <button class="btn-run" id="runBtn" onclick="runDetector()">
@@ -138,8 +233,8 @@
       <div class="spinner"></div>
       Run Analysis
     </button>
-    <button class="btn btn-outline" onclick="downloadReport()">⬇ Download Report (.txt)</button>
-    <button class="btn btn-outline" onclick="downloadCSV()">⬇ Download CSV</button>
+    <button class="btn btn-outline" onclick="downloadReport()">⬇ Report (.txt)</button>
+    <button class="btn btn-outline" onclick="downloadCSV()">⬇ CSV</button>
     <button class="btn btn-danger" onclick="clearAll()">✕ Clear</button>
     <span class="status-pill" id="statusPill">
       <span class="s-dot"></span>
@@ -156,16 +251,16 @@
     <div class="stat"><span class="stat-label">Hooks Set</span><span class="stat-value blue" id="s-hooks">0</span></div>
   </div>
 
-  <!-- MAIN GRID -->
+  <!-- GRID -->
   <div class="grid">
     <div class="panel">
       <div class="panel-header">
-        <div class="panel-title"><div class="live-dot" id="liveDot"></div>Detection Feed</div>
+        <div class="panel-title"><div class="live-dot"></div>Detection Feed</div>
         <div id="feed-count" style="font-size:.65rem;color:var(--muted)">0 events</div>
       </div>
       <div class="feed" id="feed">
         <div style="padding:3rem;text-align:center;color:var(--muted);font-size:.75rem;">
-          Click <strong style="color:var(--accent)">Run Analysis</strong> to start detection.
+          Select a target and click <strong style="color:var(--accent)">Run Analysis</strong>.
         </div>
       </div>
       <div class="legend">
@@ -188,10 +283,10 @@
   <div class="terminal">
     <div class="term-bar">
       <div class="term-dot"></div><div class="term-dot"></div><div class="term-dot"></div>
-      <span class="term-title">live output</span>
+      <span class="term-title" id="termTitle">live output</span>
     </div>
     <div class="term-body" id="terminal">
-      <span class="t-muted">// Click Run Analysis to start...</span>
+      <span class="t-muted">// Select a target and click Run Analysis...</span>
     </div>
   </div>
 
@@ -213,186 +308,187 @@
 </div>
 
 <script>
-let allLines = [];
-let detections = [];
-let hooks = 0, strong = 0;
-let reportText = '';
-const BROKEN_LIST = ['MD2','MD4','MD5','DES','RC4','RC2','3DES'];
+let detections=[], hooks=0, strong=0, reportText='';
+let activeTab='default', uploadedFile=null;
+const BROKEN_LIST=['MD2','MD4','MD5','DES','RC4','RC2','3DES'];
 
-function setStatus(state, text) {
-  const pill = document.getElementById('statusPill');
-  const dot  = pill.querySelector('.s-dot');
-  pill.className = 'status-pill ' + state;
-  dot.className  = 's-dot' + (state === 'running' ? ' pulse' : '');
-  document.getElementById('statusText').textContent = text;
+function switchTab(tab) {
+  activeTab = tab;
+  document.getElementById('tab-default').className = 'tab' + (tab==='default'?' active':'');
+  document.getElementById('tab-custom').className  = 'tab' + (tab==='custom'?' active':'');
+  document.getElementById('panel-default').style.display = tab==='default'?'block':'none';
+  document.getElementById('panel-custom').style.display  = tab==='custom'?'block':'none';
+  if (tab==='default') fetch('/use_default');
 }
 
-function addTermLine(text, cls) {
-  const tb = document.getElementById('terminal');
-  const span = document.createElement('span');
-  span.className = cls || '';
-  span.style.display = 'block';
-  span.textContent = text;
-  tb.appendChild(span);
-  tb.scrollTop = tb.scrollHeight;
+function fmt(bytes) {
+  if(bytes<1024) return bytes+'B';
+  if(bytes<1048576) return (bytes/1024).toFixed(1)+'KB';
+  return (bytes/1048576).toFixed(1)+'MB';
+}
+
+async function uploadExe(file) {
+  const fd = new FormData();
+  fd.append('exe', file);
+  const r = await fetch('/upload', {method:'POST', body:fd});
+  const d = await r.json();
+  if(d.status==='ok') {
+    uploadedFile = file.name;
+    document.getElementById('ec-name').textContent = file.name;
+    document.getElementById('ec-size').textContent = fmt(file.size) + ' · ready to analyze';
+    document.getElementById('exeChosen').classList.add('show');
+    document.getElementById('exeDrop').style.display='none';
+  } else {
+    alert('Upload failed: ' + d.msg);
+  }
+}
+
+function clearExe() {
+  uploadedFile = null;
+  document.getElementById('exeChosen').classList.remove('show');
+  document.getElementById('exeDrop').style.display='block';
+  document.getElementById('exeInput').value='';
+  fetch('/use_default');
+}
+
+document.getElementById('exeInput').addEventListener('change', function(e){
+  if(e.target.files[0]) uploadExe(e.target.files[0]);
+});
+const dz = document.getElementById('exeDrop');
+dz.addEventListener('dragover', e=>{e.preventDefault();dz.classList.add('drag-over');});
+dz.addEventListener('dragleave', ()=>dz.classList.remove('drag-over'));
+dz.addEventListener('drop', e=>{
+  e.preventDefault(); dz.classList.remove('drag-over');
+  const f=e.dataTransfer.files[0];
+  if(f && f.name.endsWith('.exe')) { switchTab('custom'); uploadExe(f); }
+  else alert('Please drop a .exe file.');
+});
+
+function setStatus(state, text) {
+  const pill=document.getElementById('statusPill');
+  const dot=pill.querySelector('.s-dot');
+  pill.className='status-pill '+state;
+  dot.className='s-dot'+(state==='running'?' pulse':'');
+  document.getElementById('statusText').textContent=text;
+}
+
+function addTermLine(text,cls) {
+  const tb=document.getElementById('terminal');
+  const s=document.createElement('span');
+  s.className=cls||'';s.style.display='block';s.textContent=text;
+  tb.appendChild(s);tb.scrollTop=tb.scrollHeight;
 }
 
 function classifyLine(line) {
-  if (line.includes('[DETECTED]'))  return 't-red';
-  if (line.includes('[HOOK]'))      return 't-blue';
-  if (line.includes('[INFO]'))      return 't-green';
-  if (line.includes('[IMAGE]'))     return 't-yellow';
-  if (line.startsWith('='))        return 't-muted';
+  if(line.includes('[DETECTED]')) return 't-red';
+  if(line.includes('[HOOK]'))     return 't-blue';
+  if(line.includes('[INFO]'))     return 't-green';
+  if(line.includes('[IMAGE]'))    return 't-yellow';
+  if(line.startsWith('='))       return 't-muted';
   return '';
 }
 
 function parseLine(line) {
-  if (line.includes('[HOOK]')) {
-    hooks++;
-    document.getElementById('s-hooks').textContent = hooks;
-  }
-  if (line.includes('[INFO]') && line.includes('strong')) {
-    strong++;
-    document.getElementById('s-strong').textContent = strong;
-  }
-  if (line.includes('[DETECTED]')) {
-    const algoM = line.match(/Algorithm=([\w\-\/]+)/);
-    const srcM  = line.match(/Source=([^\s]+(?:\([^)]+\))?)/);
-    const strM  = line.match(/Strength=([\w\/]+)/);
-    const detM  = line.match(/Detail=(.+)$/);
-    if (algoM) {
-      const d = {
-        algo:     algoM[1].trim(),
-        source:   srcM ? srcM[1].trim() : '?',
-        strength: strM ? strM[1].trim() : 'UNKNOWN',
-        detail:   detM ? detM[1].trim() : ''
-      };
-      detections.push(d);
-      appendFeedEntry(d, detections.length - 1);
-      updateStats();
-      updateChart();
+  if(line.includes('[HOOK]')){hooks++;document.getElementById('s-hooks').textContent=hooks;}
+  if(line.includes('[INFO]')&&line.includes('strong')){strong++;document.getElementById('s-strong').textContent=strong;}
+  if(line.includes('[DETECTED]')){
+    const algoM=line.match(/Algorithm=([\w\-\/]+)/);
+    const srcM=line.match(/Source=([^\s]+(?:\([^)]+\))?)/);
+    const strM=line.match(/Strength=([\w\/]+)/);
+    const detM=line.match(/Detail=(.+)$/);
+    if(algoM){
+      const d={algo:algoM[1].trim(),source:srcM?srcM[1].trim():'?',strength:strM?strM[1].trim():'UNKNOWN',detail:detM?detM[1].trim():''};
+      detections.push(d);appendFeedEntry(d);updateStats();updateChart();
     }
   }
 }
 
-function strengthClass(s) {
-  s = (s||'').toUpperCase();
-  if (s.includes('BROKEN')) return 'broken';
-  if (s.includes('WEAK'))   return 'weak';
+function strengthClass(s){
+  s=(s||'').toUpperCase();
+  if(s.includes('BROKEN')) return 'broken';
+  if(s.includes('WEAK'))   return 'weak';
   return 'strong';
 }
 
-function appendFeedEntry(d, idx) {
-  const feed = document.getElementById('feed');
-  if (feed.querySelector('div[style]')) feed.innerHTML = '';
-  const cls = strengthClass(d.strength);
-  const el = document.createElement('div');
-  el.className = 'entry';
-  el.style.animationDelay = '0ms';
-  el.innerHTML = `
-    <div class="sev ${cls}"></div>
-    <div>
-      <div class="entry-algo">${d.algo}</div>
-      <div class="entry-src">${d.source}</div>
-      <div class="entry-src" style="color:#4a5568;margin-top:2px">${d.detail}</div>
-    </div>
-    <div class="pill ${cls}">${cls}</div>`;
-  feed.appendChild(el);
-  feed.scrollTop = feed.scrollHeight;
-  document.getElementById('feed-count').textContent = detections.length + ' events';
+function appendFeedEntry(d){
+  const feed=document.getElementById('feed');
+  if(feed.querySelector('div[style]')) feed.innerHTML='';
+  const cls=strengthClass(d.strength);
+  const el=document.createElement('div');
+  el.className='entry';el.style.animationDelay='0ms';
+  el.innerHTML=`<div class="sev ${cls}"></div><div><div class="entry-algo">${d.algo}</div><div class="entry-src">${d.source}</div><div class="entry-src" style="color:#4a5568;margin-top:2px">${d.detail}</div></div><div class="pill ${cls}">${cls}</div>`;
+  feed.appendChild(el);feed.scrollTop=feed.scrollHeight;
+  document.getElementById('feed-count').textContent=detections.length+' events';
 }
 
-function updateStats() {
-  const broken = detections.filter(d => strengthClass(d.strength) === 'broken').length;
-  const weak   = detections.filter(d => strengthClass(d.strength) === 'weak').length;
-  document.getElementById('s-total').textContent  = detections.length;
-  document.getElementById('s-broken').textContent = broken;
-  document.getElementById('s-weak').textContent   = weak;
+function updateStats(){
+  const broken=detections.filter(d=>strengthClass(d.strength)==='broken').length;
+  const weak=detections.filter(d=>strengthClass(d.strength)==='weak').length;
+  document.getElementById('s-total').textContent=detections.length;
+  document.getElementById('s-broken').textContent=broken;
+  document.getElementById('s-weak').textContent=weak;
 }
 
-function updateChart() {
-  const counts = {};
-  for (const d of detections) {
-    let key = d.algo.toUpperCase();
-    if (key === 'SHA1') key = 'SHA-1';
-    counts[key] = (counts[key]||0) + 1;
-  }
-  const max = Math.max(...Object.values(counts), 1);
-  const chart = document.getElementById('chart');
-  chart.innerHTML = Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([algo,cnt],i) => {
-    const cls = BROKEN_LIST.includes(algo) ? 'broken' : 'weak';
-    const pct = Math.round((cnt/max)*100);
-    return `<div class="chart-row" style="animation-delay:${i*60}ms">
-      <div class="chart-label">${algo}</div>
-      <div class="bar-wrap"><div class="bar ${cls}" style="width:${pct}%">${cnt}</div></div>
-      <div class="chart-count" style="color:${cls==='broken'?'var(--danger)':'var(--warn)'}">${cnt}</div>
-    </div>`;
+function updateChart(){
+  const counts={};
+  for(const d of detections){let k=d.algo.toUpperCase();if(k==='SHA1')k='SHA-1';counts[k]=(counts[k]||0)+1;}
+  const max=Math.max(...Object.values(counts),1);
+  document.getElementById('chart').innerHTML=Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([algo,cnt],i)=>{
+    const cls=BROKEN_LIST.includes(algo)?'broken':'weak';
+    return `<div class="chart-row" style="animation-delay:${i*60}ms"><div class="chart-label">${algo}</div><div class="bar-wrap"><div class="bar ${cls}" style="width:${Math.round((cnt/max)*100)}%">${cnt}</div></div><div class="chart-count" style="color:${cls==='broken'?'var(--danger)':'var(--warn)'}">${cnt}</div></div>`;
   }).join('');
 }
 
-async function runDetector() {
-  const btn = document.getElementById('runBtn');
-  btn.disabled = true;
-  btn.classList.add('running');
-  setStatus('running', 'Running analysis...');
+async function runDetector(){
+  if(activeTab==='custom' && !uploadedFile){alert('Please drop a .exe file first.');return;}
+  const btn=document.getElementById('runBtn');
+  btn.disabled=true;btn.classList.add('running');
+  setStatus('running','Running...');
 
-  // reset
-  allLines = []; detections = []; hooks = 0; strong = 0; reportText = '';
-  document.getElementById('feed').innerHTML = '';
-  document.getElementById('terminal').innerHTML = '';
-  document.getElementById('chart').innerHTML = '<div style="color:var(--muted);font-size:.75rem;text-align:center;padding:2rem 0;">Running...</div>';
-  document.getElementById('reportBox').value = '';
+  detections=[];hooks=0;strong=0;reportText='';
+  document.getElementById('feed').innerHTML='';
+  document.getElementById('terminal').innerHTML='';
+  document.getElementById('chart').innerHTML='<div style="color:var(--muted);font-size:.75rem;text-align:center;padding:2rem 0;">Running...</div>';
+  document.getElementById('reportBox').value='';
   ['s-total','s-broken','s-weak','s-strong','s-hooks'].forEach(id=>document.getElementById(id).textContent='0');
 
-  await fetch('/run');
+  const res=await fetch('/run');
+  const info=await res.json();
+  const targetName = info.target || 'unknown';
 
-  const es = new EventSource('/stream');
-  es.onmessage = e => {
-    const data = JSON.parse(e.data);
-    if (data.type === 'ping') return;
-    if (data.type === 'start') {
-      addTermLine('// Analysis started...', 't-muted');
-      return;
+  document.getElementById('bannerTarget').textContent=targetName;
+  document.getElementById('analyzingBanner').classList.add('show');
+  document.getElementById('termTitle').textContent='live output — '+targetName;
+
+  const es=new EventSource('/stream');
+  es.onmessage=e=>{
+    const data=JSON.parse(e.data);
+    if(data.type==='ping') return;
+    if(data.type==='start'){addTermLine('// Analyzing: '+data.target,'t-muted');return;}
+    if(data.type==='error'){
+      addTermLine('ERROR: '+data.msg,'t-red');
+      setStatus('error','Error');
+      btn.disabled=false;btn.classList.remove('running');
+      document.getElementById('analyzingBanner').classList.remove('show');
+      es.close();return;
     }
-    if (data.type === 'error') {
-      addTermLine('ERROR: ' + data.msg, 't-red');
-      setStatus('error', 'Error');
-      btn.disabled = false; btn.classList.remove('running');
-      es.close(); return;
-    }
-    if (data.type === 'line') {
-      const line = data.msg;
-      allLines.push(line);
-      addTermLine(line, classifyLine(line));
-      parseLine(line);
-    }
-    if (data.type === 'done') {
-      es.close();
-      btn.disabled = false;
-      btn.classList.remove('running');
-      setStatus('done', 'Complete');
-      // load report text
-      fetch('/report_text').then(r=>r.text()).then(t=>{
-        reportText = t;
-        document.getElementById('reportBox').value = t;
-      });
-      addTermLine('// Analysis complete.', 't-green');
-      if (!detections.length) {
-        document.getElementById('feed').innerHTML =
-          '<div style="padding:2rem;text-align:center;color:var(--muted);font-size:.75rem;">No weak crypto detections found.</div>';
-      }
+    if(data.type==='line'){addTermLine(data.msg,classifyLine(data.msg));parseLine(data.msg);}
+    if(data.type==='done'){
+      es.close();btn.disabled=false;btn.classList.remove('running');
+      setStatus('done','Complete');
+      document.getElementById('analyzingBanner').classList.remove('show');
+      fetch('/report_text').then(r=>r.text()).then(t=>{reportText=t;document.getElementById('reportBox').value=t;});
+      addTermLine('// Analysis complete.','t-green');
+      if(!detections.length)
+        document.getElementById('feed').innerHTML='<div style="padding:2rem;text-align:center;color:var(--muted);font-size:.75rem;">No weak crypto detections found in this application. ✅</div>';
     }
   };
-  es.onerror = () => {
-    es.close();
-    btn.disabled = false; btn.classList.remove('running');
-    setStatus('error', 'Connection lost');
-  };
+  es.onerror=()=>{es.close();btn.disabled=false;btn.classList.remove('running');setStatus('error','Lost');document.getElementById('analyzingBanner').classList.remove('show');};
 }
 
-function clearAll() {
-  allLines=[]; detections=[]; hooks=0; strong=0; reportText='';
-  document.getElementById('feed').innerHTML='<div style="padding:3rem;text-align:center;color:var(--muted);font-size:.75rem;">Click Run Analysis to start detection.</div>';
+function clearAll(){
+  detections=[];hooks=0;strong=0;reportText='';
+  document.getElementById('feed').innerHTML='<div style="padding:3rem;text-align:center;color:var(--muted);font-size:.75rem;">Select a target and click Run Analysis.</div>';
   document.getElementById('chart').innerHTML='<div style="color:var(--muted);font-size:.75rem;text-align:center;padding:2rem 0;">No data yet.</div>';
   document.getElementById('terminal').innerHTML='<span class="t-muted">// Cleared.</span>';
   document.getElementById('reportBox').value='';
@@ -401,25 +497,20 @@ function clearAll() {
   setStatus('','Ready');
 }
 
-function downloadReport() {
-  window.location.href = '/report';
+function downloadReport(){window.location.href='/report';}
+
+function downloadCSV(){
+  if(!detections.length){alert('Run analysis first.');return;}
+  const rows=[['Algorithm','Source','Strength','Detail']];
+  for(const d of detections) rows.push([d.algo,d.source,d.strength,d.detail]);
+  const csv=rows.map(r=>r.map(v=>'"'+v.replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='weak_crypto_detections.csv';a.click();
 }
 
-function downloadCSV() {
-  if (!detections.length) { alert('Run analysis first.'); return; }
-  const rows = [['Algorithm','Source','Strength','Detail']];
-  for (const d of detections) rows.push([d.algo,d.source,d.strength,d.detail]);
-  const csv = rows.map(r=>r.map(v=>'"'+v.replace(/"/g,'""')+'"').join(',')).join('\n');
-  const blob = new Blob([csv],{type:'text/csv'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'weak_crypto_detections.csv';
-  a.click();
-}
-
-function copyReport() {
-  const tb = document.getElementById('reportBox');
-  tb.select();
+function copyReport(){
+  document.getElementById('reportBox').select();
   document.execCommand('copy');
 }
 </script>

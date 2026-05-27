@@ -1,11 +1,10 @@
 """
 server.py  -  WeakCryptoDetector local web server
 Run:  python server.py
-Then open:  http://localhost:5000
 """
 
-from flask import Flask, render_template_string, Response, jsonify, send_file
-import subprocess, threading, os, json, queue, time
+from flask import Flask, Response, jsonify, send_file, request
+import subprocess, threading, os, json, queue, time, shutil
 
 app = Flask(__name__)
 
@@ -13,9 +12,13 @@ BASE_DIR    = os.path.dirname(os.path.abspath(__file__))
 DETECTOR    = os.path.join(BASE_DIR, "WeakCryptoDetector.exe")
 TARGET      = os.path.join(BASE_DIR, "test_target", "test_target.exe")
 REPORT_FILE = os.path.join(BASE_DIR, "weak_crypto_report.txt")
+UPLOAD_DIR  = os.path.join(BASE_DIR, "uploaded_targets")
+
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 output_queue = queue.Queue()
 running      = False
+current_target = None
 
 # ── serve UI ──────────────────────────────────────────────────────────────
 @app.route("/")
@@ -23,24 +26,45 @@ def index():
     with open(os.path.join(BASE_DIR, "index.html"), encoding="utf-8") as f:
         return f.read()
 
+# ── upload a custom exe ───────────────────────────────────────────────────
+@app.route("/upload", methods=["POST"])
+def upload():
+    global current_target
+    if "exe" not in request.files:
+        return jsonify({"status":"error","msg":"No file"}), 400
+    f = request.files["exe"]
+    if not f.filename.lower().endswith(".exe"):
+        return jsonify({"status":"error","msg":"Only .exe files allowed"}), 400
+    save_path = os.path.join(UPLOAD_DIR, f.filename)
+    f.save(save_path)
+    current_target = save_path
+    return jsonify({"status":"ok","filename": f.filename, "path": save_path})
+
+# ── set target to default test_target ────────────────────────────────────
+@app.route("/use_default")
+def use_default():
+    global current_target
+    current_target = None
+    return jsonify({"status":"ok"})
+
 # ── run detector ──────────────────────────────────────────────────────────
-def run_detector():
+def run_detector(target_path):
     global running
     running = True
-    output_queue.put(json.dumps({"type":"start"}))
+    output_queue.put(json.dumps({"type":"start","target": os.path.basename(target_path)}))
 
     if not os.path.exists(DETECTOR):
         output_queue.put(json.dumps({"type":"error","msg":f"Detector not found: {DETECTOR}"}))
         running = False
         return
-    if not os.path.exists(TARGET):
-        output_queue.put(json.dumps({"type":"error","msg":f"Target not found: {TARGET}"}))
+    if not os.path.exists(target_path):
+        output_queue.put(json.dumps({"type":"error","msg":f"Target not found: {target_path}"}))
         running = False
         return
 
     try:
         proc = subprocess.Popen(
-            [DETECTOR, TARGET],
+            [DETECTOR, target_path],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
@@ -59,14 +83,15 @@ def run_detector():
 
 @app.route("/run")
 def run():
-    global running
+    global running, current_target
     if running:
         return jsonify({"status":"already_running"})
-    t = threading.Thread(target=run_detector, daemon=True)
+    target = current_target if current_target else TARGET
+    t = threading.Thread(target=run_detector, args=(target,), daemon=True)
     t.start()
-    return jsonify({"status":"started"})
+    return jsonify({"status":"started", "target": os.path.basename(target)})
 
-# ── SSE stream of output lines ────────────────────────────────────────────
+# ── SSE stream ────────────────────────────────────────────────────────────
 @app.route("/stream")
 def stream():
     def generate():
@@ -82,7 +107,7 @@ def stream():
     return Response(generate(), mimetype="text/event-stream",
                     headers={"Cache-Control":"no-cache","X-Accel-Buffering":"no"})
 
-# ── serve report file ─────────────────────────────────────────────────────
+# ── report ────────────────────────────────────────────────────────────────
 @app.route("/report")
 def report():
     if os.path.exists(REPORT_FILE):
@@ -101,8 +126,12 @@ def report_text():
 # ── status ────────────────────────────────────────────────────────────────
 @app.route("/status")
 def status():
-    return jsonify({"running": running,
-                    "report_exists": os.path.exists(REPORT_FILE)})
+    target = current_target if current_target else TARGET
+    return jsonify({
+        "running": running,
+        "report_exists": os.path.exists(REPORT_FILE),
+        "current_target": os.path.basename(target)
+    })
 
 if __name__ == "__main__":
     import webbrowser
