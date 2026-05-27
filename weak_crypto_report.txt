@@ -1,0 +1,30 @@
+[HOOK] Breakpoint set on CryptCreateHash at 00007FFEE61C0C50
+[HOOK] Breakpoint set on BCryptOpenAlgorithmProvider at 00007FFEE3E09410
+[DETECTED] Source=CryptCreateHash(advapi32.dll)       Algorithm=MD2        Strength=BROKEN   Detail=ALG_ID=0x8001
+[DETECTED] Source=BCryptOpenAlgorithmProvider(bcrypt.dll) Algorithm=MD2        Strength=WEAK/BROKEN Detail=AlgString=MD2
+[DETECTED] Source=CryptCreateHash(advapi32.dll)       Algorithm=MD4        Strength=BROKEN   Detail=ALG_ID=0x8002
+[DETECTED] Source=BCryptOpenAlgorithmProvider(bcrypt.dll) Algorithm=MD4        Strength=WEAK/BROKEN Detail=AlgString=MD4
+[DETECTED] Source=CryptCreateHash(advapi32.dll)       Algorithm=MD5        Strength=BROKEN   Detail=ALG_ID=0x8003
+[DETECTED] Source=BCryptOpenAlgorithmProvider(bcrypt.dll) Algorithm=MD5        Strength=WEAK/BROKEN Detail=AlgString=MD5
+[DETECTED] Source=CryptCreateHash(advapi32.dll)       Algorithm=SHA-1      Strength=WEAK     Detail=ALG_ID=0x8004
+[DETECTED] Source=BCryptOpenAlgorithmProvider(bcrypt.dll) Algorithm=SHA1       Strength=WEAK/BROKEN Detail=AlgString=SHA1
+[DETECTED] Source=BCryptOpenAlgorithmProvider(bcrypt.dll) Algorithm=MD5        Strength=WEAK/BROKEN Detail=AlgString=MD5
+[DETECTED] Source=BCryptOpenAlgorithmProvider(bcrypt.dll) Algorithm=SHA1       Strength=WEAK/BROKEN Detail=AlgString=SHA1
+[DETECTED] Source=CryptCreateHash(advapi32.dll)       Algorithm=MD5        Strength=BROKEN   Detail=ALG_ID=0x8003
+[DETECTED] Source=BCryptOpenAlgorithmProvider(bcrypt.dll) Algorithm=RC4        Strength=WEAK/BROKEN Detail=AlgString=RC4
+[DETECTED] Source=CryptCreateHash(advapi32.dll)       Algorithm=SHA-1      Strength=WEAK     Detail=ALG_ID=0x8004
+[DETECTED] Source=BCryptOpenAlgorithmProvider(bcrypt.dll) Algorithm=DES        Strength=WEAK/BROKEN Detail=AlgString=DES
+
+============================================================
+  WEAK CRYPTO DETECTION SUMMARY
+============================================================
+  Algorithm        | Detections
+  DES              | 1
+  MD2              | 2
+  MD4              | 2
+  MD5              | 4
+  RC4              | 1
+  SHA-1            | 2
+  SHA1             | 2
+============================================================
+

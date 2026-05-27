@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weak Crypto Detector</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;600;800&display=swap');
+  :root {
+    --bg:#0a0c10;--bg2:#0f1117;--bg3:#161b24;--border:#1e2533;
+    --accent:#00d9a6;--accent2:#0090ff;--danger:#ff4d4d;--warn:#ffb020;
+    --text:#e2e8f0;--muted:#64748b;
+    --mono:'JetBrains Mono',monospace;--sans:'Syne',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,217,166,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,217,166,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+  .wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:2rem 1.5rem;}
+  header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:2rem;gap:1rem;flex-wrap:wrap;}
+  .logo-group{display:flex;align-items:center;gap:1rem;}
+  .shield{width:52px;height:52px;background:linear-gradient(135deg,#00d9a633,#0090ff22);border:1px solid var(--accent);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+  h1{font-family:var(--sans);font-size:1.6rem;font-weight:800;letter-spacing:-.5px;line-height:1.2;}
+  h1 span{color:var(--accent);}
+  .subtitle{font-size:.7rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:4px;}
+  .badge{background:#00d9a611;border:1px solid #00d9a633;color:var(--accent);font-size:.65rem;padding:4px 10px;border-radius:20px;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;align-self:flex-start;}
+
+  /* RUN button big */
+  .run-bar{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .btn-run{display:flex;align-items:center;gap:10px;padding:.85rem 2rem;border-radius:10px;font-family:var(--mono);font-size:.85rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;border:none;background:var(--accent);color:#000;transition:all .15s;}
+  .btn-run:hover{background:#00f0b8;transform:translateY(-1px);}
+  .btn-run:active{transform:translateY(0);}
+  .btn-run:disabled{background:#1e2533;color:var(--muted);cursor:not-allowed;transform:none;}
+  .btn-run .spinner{display:none;width:16px;height:16px;border:2px solid #00000044;border-top-color:#000;border-radius:50%;animation:spin .7s linear infinite;}
+  .btn-run.running .spinner{display:block;}
+  .btn-run.running .run-icon{display:none;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .btn{display:flex;align-items:center;gap:8px;padding:.6rem 1.2rem;border-radius:8px;font-family:var(--mono);font-size:.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border:1px solid;transition:all .15s;}
+  .btn:hover{transform:translateY(-1px);}
+  .btn-outline{background:transparent;border-color:var(--border);color:var(--text);}
+  .btn-outline:hover{border-color:var(--accent);color:var(--accent);background:#00d9a608;}
+  .btn-danger{background:transparent;border-color:#ff4d4d44;color:var(--danger);}
+  .btn-danger:hover{background:#ff4d4d11;border-color:var(--danger);}
+
+  /* status pill */
+  .status-pill{display:inline-flex;align-items:center;gap:6px;font-size:.7rem;padding:6px 12px;border-radius:20px;border:1px solid var(--border);color:var(--muted);}
+  .status-pill.running{border-color:#0090ff44;color:var(--accent2);}
+  .status-pill.done{border-color:#00d9a644;color:var(--accent);}
+  .status-pill.error{border-color:#ff4d4d44;color:var(--danger);}
+  .s-dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+  .s-dot.pulse{animation:pulse 1s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.8);}}
+
+  /* stats */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.5rem;}
+  .stat{background:var(--bg2);padding:1rem 1.25rem;}
+  .stat-label{font-size:.6rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;display:block;margin-bottom:4px;}
+  .stat-value{font-family:var(--sans);font-size:1.8rem;font-weight:800;line-height:1;display:block;}
+  .stat-value.danger{color:var(--danger);} .stat-value.warn{color:var(--warn);} .stat-value.ok{color:var(--accent);} .stat-value.blue{color:var(--accent2);}
+
+  /* main grid */
+  .grid{display:grid;grid-template-columns:1fr 320px;gap:1.5rem;margin-bottom:1.5rem;}
+  @media(max-width:800px){.grid{grid-template-columns:1fr;}}
+  .panel{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .panel-header{padding:.75rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg3);}
+  .panel-title{font-size:.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px;}
+  .live-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite;}
+
+  /* feed */
+  .feed{padding:0;max-height:400px;overflow-y:auto;}
+  .feed::-webkit-scrollbar{width:4px;} .feed::-webkit-scrollbar-thumb{background:var(--border);}
+  .entry{padding:.8rem 1.25rem;border-bottom:1px solid var(--border);display:grid;grid-template-columns:auto 1fr auto;gap:.75rem;align-items:start;animation:slideIn .3s ease forwards;opacity:0;}
+  @keyframes slideIn{from{opacity:0;transform:translateX(-8px);}to{opacity:1;transform:translateX(0);}}
+  .entry:last-child{border-bottom:none;}
+  .sev{width:7px;height:7px;border-radius:50%;margin-top:5px;flex-shrink:0;}
+  .sev.broken{background:var(--danger);box-shadow:0 0 6px var(--danger);}
+  .sev.weak{background:var(--warn);box-shadow:0 0 6px var(--warn);}
+  .sev.strong{background:var(--accent);}
+  .entry-algo{font-family:var(--sans);font-size:.9rem;font-weight:600;margin-bottom:2px;}
+  .entry-src{font-size:.65rem;color:var(--muted);word-break:break-all;}
+  .pill{font-size:.6rem;padding:3px 8px;border-radius:20px;font-weight:700;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;}
+  .pill.broken{background:#ff4d4d18;color:var(--danger);border:1px solid #ff4d4d33;}
+  .pill.weak{background:#ffb02018;color:var(--warn);border:1px solid #ffb02033;}
+  .pill.strong{background:#00d9a618;color:var(--accent);border:1px solid #00d9a633;}
+  .pill.info{background:#0090ff18;color:var(--accent2);border:1px solid #0090ff33;}
+
+  /* chart */
+  .chart-panel{padding:1.25rem;}
+  .chart-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;animation:fadeIn .4s ease forwards;opacity:0;}
+  @keyframes fadeIn{to{opacity:1;}}
+  .chart-label{width:56px;font-size:.72rem;color:var(--text);text-align:right;flex-shrink:0;}
+  .bar-wrap{flex:1;height:22px;background:var(--bg3);border-radius:4px;overflow:hidden;border:1px solid var(--border);}
+  .bar{height:100%;border-radius:3px;transition:width 1s cubic-bezier(.23,1,.32,1);display:flex;align-items:center;padding-left:8px;font-size:.6rem;font-weight:700;color:#000;min-width:28px;}
+  .bar.broken{background:var(--danger);}
+  .bar.weak{background:var(--warn);}
+  .chart-count{width:24px;text-align:right;font-size:.75rem;font-weight:700;flex-shrink:0;}
+
+  /* terminal */
+  .terminal{background:var(--bg);border:1px solid var(--border);border-radius:12px;margin-bottom:1.5rem;overflow:hidden;}
+  .term-bar{background:var(--bg3);border-bottom:1px solid var(--border);padding:.6rem 1rem;display:flex;align-items:center;gap:8px;}
+  .term-dot{width:10px;height:10px;border-radius:50%;}
+  .term-dot:nth-child(1){background:#ff5f57;} .term-dot:nth-child(2){background:#febc2e;} .term-dot:nth-child(3){background:#28c840;}
+  .term-title{font-size:.65rem;color:var(--muted);margin-left:6px;letter-spacing:1px;}
+  .term-body{padding:1rem 1.25rem;font-size:.73rem;line-height:1.8;height:220px;overflow-y:auto;color:#a0aec0;}
+  .term-body::-webkit-scrollbar{width:4px;} .term-body::-webkit-scrollbar-thumb{background:var(--border);}
+  .t-green{color:var(--accent);} .t-red{color:var(--danger);} .t-yellow{color:var(--warn);}
+  .t-blue{color:var(--accent2);} .t-muted{color:var(--muted);}
+
+  /* legend */
+  .legend{display:flex;gap:1.5rem;flex-wrap:wrap;padding:.75rem 1.25rem;border-top:1px solid var(--border);background:var(--bg3);}
+  .leg-item{display:flex;align-items:center;gap:6px;font-size:.65rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
+  .leg-dot{width:8px;height:8px;border-radius:50%;}
+
+  /* report box */
+  .report-box{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--accent);font-family:var(--mono);font-size:.7rem;padding:1rem;resize:vertical;min-height:140px;outline:none;line-height:1.7;}
+
+  footer{text-align:center;padding:1.5rem 0 .5rem;font-size:.65rem;color:var(--muted);letter-spacing:1px;border-top:1px solid var(--border);margin-top:2rem;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="logo-group">
+      <div class="shield">🛡️</div>
+      <div>
+        <h1>Weak<span>Crypto</span>Detector</h1>
+        <div class="subtitle">Dynamic Binary Analysis · CNS Mini Project</div>
+      </div>
+    </div>
+    <div class="badge">Windows Debug API · DBI</div>
+  </header>
+
+  <!-- RUN BAR -->
+  <div class="run-bar">
+    <button class="btn-run" id="runBtn" onclick="runDetector()">
+      <span class="run-icon">▶</span>
+      <div class="spinner"></div>
+      Run Analysis
+    </button>
+    <button class="btn btn-outline" onclick="downloadReport()">⬇ Download Report (.txt)</button>
+    <button class="btn btn-outline" onclick="downloadCSV()">⬇ Download CSV</button>
+    <button class="btn btn-danger" onclick="clearAll()">✕ Clear</button>
+    <span class="status-pill" id="statusPill">
+      <span class="s-dot"></span>
+      <span id="statusText">Ready</span>
+    </span>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat"><span class="stat-label">Detections</span><span class="stat-value danger" id="s-total">0</span></div>
+    <div class="stat"><span class="stat-label">Broken</span><span class="stat-value danger" id="s-broken">0</span></div>
+    <div class="stat"><span class="stat-label">Weak</span><span class="stat-value warn" id="s-weak">0</span></div>
+    <div class="stat"><span class="stat-label">Strong (OK)</span><span class="stat-value ok" id="s-strong">0</span></div>
+    <div class="stat"><span class="stat-label">Hooks Set</span><span class="stat-value blue" id="s-hooks">0</span></div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="grid">
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title"><div class="live-dot" id="liveDot"></div>Detection Feed</div>
+        <div id="feed-count" style="font-size:.65rem;color:var(--muted)">0 events</div>
+      </div>
+      <div class="feed" id="feed">
+        <div style="padding:3rem;text-align:center;color:var(--muted);font-size:.75rem;">
+          Click <strong style="color:var(--accent)">Run Analysis</strong> to start detection.
+        </div>
+      </div>
+      <div class="legend">
+        <div class="leg-item"><div class="leg-dot" style="background:var(--danger)"></div>Broken</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--warn)"></div>Weak</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--accent)"></div>Strong</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--accent2)"></div>Hook</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><div class="panel-title">Algorithm Breakdown</div></div>
+      <div class="chart-panel" id="chart">
+        <div style="color:var(--muted);font-size:.75rem;text-align:center;padding:2rem 0;">No data yet.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TERMINAL -->
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="term-dot"></div><div class="term-dot"></div><div class="term-dot"></div>
+      <span class="term-title">live output</span>
+    </div>
+    <div class="term-body" id="terminal">
+      <span class="t-muted">// Click Run Analysis to start...</span>
+    </div>
+  </div>
+
+  <!-- REPORT -->
+  <div class="panel" style="margin-bottom:1.5rem;">
+    <div class="panel-header">
+      <div class="panel-title">Full Report</div>
+      <div style="display:flex;gap:.5rem;">
+        <button class="btn btn-outline" style="padding:4px 12px;font-size:.65rem;" onclick="copyReport()">Copy</button>
+        <button class="btn btn-outline" style="padding:4px 12px;font-size:.65rem;" onclick="downloadReport()">⬇ Download</button>
+      </div>
+    </div>
+    <div style="padding:1rem;">
+      <textarea class="report-box" id="reportBox" readonly placeholder="Report will appear here after running analysis..."></textarea>
+    </div>
+  </div>
+
+  <footer>CNS Mini Project · Dynamic Binary Analysis · Weak Cryptographic Usage Detection</footer>
+</div>
+
+<script>
+let allLines = [];
+let detections = [];
+let hooks = 0, strong = 0;
+let reportText = '';
+const BROKEN_LIST = ['MD2','MD4','MD5','DES','RC4','RC2','3DES'];
+
+function setStatus(state, text) {
+  const pill = document.getElementById('statusPill');
+  const dot  = pill.querySelector('.s-dot');
+  pill.className = 'status-pill ' + state;
+  dot.className  = 's-dot' + (state === 'running' ? ' pulse' : '');
+  document.getElementById('statusText').textContent = text;
+}
+
+function addTermLine(text, cls) {
+  const tb = document.getElementById('terminal');
+  const span = document.createElement('span');
+  span.className = cls || '';
+  span.style.display = 'block';
+  span.textContent = text;
+  tb.appendChild(span);
+  tb.scrollTop = tb.scrollHeight;
+}
+
+function classifyLine(line) {
+  if (line.includes('[DETECTED]'))  return 't-red';
+  if (line.includes('[HOOK]'))      return 't-blue';
+  if (line.includes('[INFO]'))      return 't-green';
+  if (line.includes('[IMAGE]'))     return 't-yellow';
+  if (line.startsWith('='))        return 't-muted';
+  return '';
+}
+
+function parseLine(line) {
+  if (line.includes('[HOOK]')) {
+    hooks++;
+    document.getElementById('s-hooks').textContent = hooks;
+  }
+  if (line.includes('[INFO]') && line.includes('strong')) {
+    strong++;
+    document.getElementById('s-strong').textContent = strong;
+  }
+  if (line.includes('[DETECTED]')) {
+    const algoM = line.match(/Algorithm=([\w\-\/]+)/);
+    const srcM  = line.match(/Source=([^\s]+(?:\([^)]+\))?)/);
+    const strM  = line.match(/Strength=([\w\/]+)/);
+    const detM  = line.match(/Detail=(.+)$/);
+    if (algoM) {
+      const d = {
+        algo:     algoM[1].trim(),
+        source:   srcM ? srcM[1].trim() : '?',
+        strength: strM ? strM[1].trim() : 'UNKNOWN',
+        detail:   detM ? detM[1].trim() : ''
+      };
+      detections.push(d);
+      appendFeedEntry(d, detections.length - 1);
+      updateStats();
+      updateChart();
+    }
+  }
+}
+
+function strengthClass(s) {
+  s = (s||'').toUpperCase();
+  if (s.includes('BROKEN')) return 'broken';
+  if (s.includes('WEAK'))   return 'weak';
+  return 'strong';
+}
+
+function appendFeedEntry(d, idx) {
+  const feed = document.getElementById('feed');
+  if (feed.querySelector('div[style]')) feed.innerHTML = '';
+  const cls = strengthClass(d.strength);
+  const el = document.createElement('div');
+  el.className = 'entry';
+  el.style.animationDelay = '0ms';
+  el.innerHTML = `
+    <div class="sev ${cls}"></div>
+    <div>
+      <div class="entry-algo">${d.algo}</div>
+      <div class="entry-src">${d.source}</div>
+      <div class="entry-src" style="color:#4a5568;margin-top:2px">${d.detail}</div>
+    </div>
+    <div class="pill ${cls}">${cls}</div>`;
+  feed.appendChild(el);
+  feed.scrollTop = feed.scrollHeight;
+  document.getElementById('feed-count').textContent = detections.length + ' events';
+}
+
+function updateStats() {
+  const broken = detections.filter(d => strengthClass(d.strength) === 'broken').length;
+  const weak   = detections.filter(d => strengthClass(d.strength) === 'weak').length;
+  document.getElementById('s-total').textContent  = detections.length;
+  document.getElementById('s-broken').textContent = broken;
+  document.getElementById('s-weak').textContent   = weak;
+}
+
+function updateChart() {
+  const counts = {};
+  for (const d of detections) {
+    let key = d.algo.toUpperCase();
+    if (key === 'SHA1') key = 'SHA-1';
+    counts[key] = (counts[key]||0) + 1;
+  }
+  const max = Math.max(...Object.values(counts), 1);
+  const chart = document.getElementById('chart');
+  chart.innerHTML = Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([algo,cnt],i) => {
+    const cls = BROKEN_LIST.includes(algo) ? 'broken' : 'weak';
+    const pct = Math.round((cnt/max)*100);
+    return `<div class="chart-row" style="animation-delay:${i*60}ms">
+      <div class="chart-label">${algo}</div>
+      <div class="bar-wrap"><div class="bar ${cls}" style="width:${pct}%">${cnt}</div></div>
+      <div class="chart-count" style="color:${cls==='broken'?'var(--danger)':'var(--warn)'}">${cnt}</div>
+    </div>`;
+  }).join('');
+}
+
+async function runDetector() {
+  const btn = document.getElementById('runBtn');
+  btn.disabled = true;
+  btn.classList.add('running');
+  setStatus('running', 'Running analysis...');
+
+  // reset
+  allLines = []; detections = []; hooks = 0; strong = 0; reportText = '';
+  document.getElementById('feed').innerHTML = '';
+  document.getElementById('terminal').innerHTML = '';
+  document.getElementById('chart').innerHTML = '<div style="color:var(--muted);font-size:.75rem;text-align:center;padding:2rem 0;">Running...</div>';
+  document.getElementById('reportBox').value = '';
+  ['s-total','s-broken','s-weak','s-strong','s-hooks'].forEach(id=>document.getElementById(id).textContent='0');
+
+  await fetch('/run');
+
+  const es = new EventSource('/stream');
+  es.onmessage = e => {
+    const data = JSON.parse(e.data);
+    if (data.type === 'ping') return;
+    if (data.type === 'start') {
+      addTermLine('// Analysis started...', 't-muted');
+      return;
+    }
+    if (data.type === 'error') {
+      addTermLine('ERROR: ' + data.msg, 't-red');
+      setStatus('error', 'Error');
+      btn.disabled = false; btn.classList.remove('running');
+      es.close(); return;
+    }
+    if (data.type === 'line') {
+      const line = data.msg;
+      allLines.push(line);
+      addTermLine(line, classifyLine(line));
+      parseLine(line);
+    }
+    if (data.type === 'done') {
+      es.close();
+      btn.disabled = false;
+      btn.classList.remove('running');
+      setStatus('done', 'Complete');
+      // load report text
+      fetch('/report_text').then(r=>r.text()).then(t=>{
+        reportText = t;
+        document.getElementById('reportBox').value = t;
+      });
+      addTermLine('// Analysis complete.', 't-green');
+      if (!detections.length) {
+        document.getElementById('feed').innerHTML =
+          '<div style="padding:2rem;text-align:center;color:var(--muted);font-size:.75rem;">No weak crypto detections found.</div>';
+      }
+    }
+  };
+  es.onerror = () => {
+    es.close();
+    btn.disabled = false; btn.classList.remove('running');
+    setStatus('error', 'Connection lost');
+  };
+}
+
+function clearAll() {
+  allLines=[]; detections=[]; hooks=0; strong=0; reportText='';
+  document.getElementById('feed').innerHTML='<div style="padding:3rem;text-align:center;color:var(--muted);font-size:.75rem;">Click Run Analysis to start detection.</div>';
+  document.getElementById('chart').innerHTML='<div style="color:var(--muted);font-size:.75rem;text-align:center;padding:2rem 0;">No data yet.</div>';
+  document.getElementById('terminal').innerHTML='<span class="t-muted">// Cleared.</span>';
+  document.getElementById('reportBox').value='';
+  ['s-total','s-broken','s-weak','s-strong','s-hooks'].forEach(id=>document.getElementById(id).textContent='0');
+  document.getElementById('feed-count').textContent='0 events';
+  setStatus('','Ready');
+}
+
+function downloadReport() {
+  window.location.href = '/report';
+}
+
+function downloadCSV() {
+  if (!detections.length) { alert('Run analysis first.'); return; }
+  const rows = [['Algorithm','Source','Strength','Detail']];
+  for (const d of detections) rows.push([d.algo,d.source,d.strength,d.detail]);
+  const csv = rows.map(r=>r.map(v=>'"'+v.replace(/"/g,'""')+'"').join(',')).join('\n');
+  const blob = new Blob([csv],{type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'weak_crypto_detections.csv';
+  a.click();
+}
+
+function copyReport() {
+  const tb = document.getElementById('reportBox');
+  tb.select();
+  document.execCommand('copy');
+}
+</script>
+</body>
+</html>

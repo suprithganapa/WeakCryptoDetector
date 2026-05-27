@@ -1,0 +1,41 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "1 – Build Test Target",
+      "type": "shell",
+      "command": "cmd",
+      "args": ["/c", "cd test_target && build_target.bat"],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "2 – Build Pin Tool",
+      "type": "shell",
+      "command": "cmd",
+      "args": ["/c", "cd pintool && build_pintool.bat"],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "3 – Run Analysis",
+      "type": "shell",
+      "command": "cmd",
+      "args": ["/c", "run_analysis.bat"],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "dependsOrder": "sequence"
+    }
+  ]
+}
