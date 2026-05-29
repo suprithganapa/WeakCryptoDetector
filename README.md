@@ -390,4 +390,4 @@ This approach works on **closed-source, obfuscated, and packed binaries** where 
 
 ---
 
-*Project by: CNS Student — Intel Pin Dynamic Binary Instrumentation*
+*Project by: Suprith GB [1RV23CS255], Sushanth Joshi [1RV23CS260], Vikas [1RV23CS]*
